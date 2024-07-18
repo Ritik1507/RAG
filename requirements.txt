@@ -11,4 +11,5 @@ streamlit
 pypdf
 faiss-cpu
 awscli
+langchain-aws
 -e .

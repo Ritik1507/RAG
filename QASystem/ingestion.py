@@ -5,8 +5,8 @@ import boto3
 from langchain_community.document_loaders import PyPDFDirectoryLoader
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_community.embeddings import BedrockEmbeddings
-from langchain.llms.bedrock import Bedrock
-from langchain.vectorstores import FAISS
+from langchain_community.llms import Bedrock
+from langchain_community.vectorstores import FAISS
 
 
 ### bedrock client
@@ -19,14 +19,14 @@ def data_ingestion():
     documents = loader.load()
     
     text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=1000)
-    text_splitter.split_documents()
+    text_splitter.split_documents(documents)
     
     docs=text_splitter.split_documents(documents)
     
     return docs
 
 def get_vector_store(docs):
-    vector_store_faiss=FAISS.from_document(docs,bedrock_embeddings)
+    vector_store_faiss=FAISS.from_documents(docs,bedrock_embeddings)
     vector_store_faiss.save_local("faiss_index")
 
 if __name__ == '__main__':
