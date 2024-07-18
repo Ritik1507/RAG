@@ -22,7 +22,8 @@ bedrock_embeddings=BedrockEmbeddings(model_id="amazon.titan-embed-text-v1",clien
 
 def main():
     st.set_page_config("QA with Doc")
-    st.header("QA with Doc using langchain and AWSBedrock")
+    st.header("QA with CustomData using langchain and AWSBedrock")
+    st.header("Doc : Retrieval-Augmented Generation For Knowledge-Intensive NLP Tasks")
     
     user_question=st.text_input("Ask a question from the pdf files")
     
