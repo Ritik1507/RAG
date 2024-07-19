@@ -1,61 +1,56 @@
-﻿import boto3
-from langchain.chains import RetrievalQA
+﻿from langchain.chains import RetrievalQA
 from langchain_community.vectorstores import FAISS
-from langchain_community.llms import Bedrock
 from langchain.prompts import PromptTemplate
-from langchain_community.embeddings import BedrockEmbeddings
+from langchain_google_genai import GoogleGenerativeAIEmbeddings,ChatGoogleGenerativeAI
+from langchain.chains.question_answering import load_qa_chain
+import streamlit as st
+
 from QASystem.ingestion import get_vector_store
-from QASystem.ingestion import data_ingestion
-from botocore.exceptions import ClientError
 
-bedrock=boto3.client(service_name="bedrock-runtime")
-bedrock_embeddings=BedrockEmbeddings(model_id="amazon.titan-embed-text-v1",client=bedrock)
+embeddings = GoogleGenerativeAIEmbeddings(model="model/embedding-001")
 
 
-prompt_template = """
+def get_conversational_chain():
 
-Human: Use the following pieces of context to provide a 
-concise answer to the question at the end but use atleast summarize
-with detailed explaantions. If you don't know the answer, 
-just say that you don't know, don't try to make up an answer.
-<context>
-{context}
-</context
+    prompt_template = """
+    Answer the question as detailed as possible from the provided context, make sure to provide all the details, if the answer is not in
+    provided context just say, "answer is not available in the context", don't provide the wrong answer\n\n
+    Context:\n {context}?\n
+    Question: \n{question}\n
 
-Question: {question}
+    Answer:
+    """
 
-Assistant:"""
+    model = ChatGoogleGenerativeAI(model="gemini-pro",
+                             temperature=0.3)
 
-PROMPT=PromptTemplate(
-    template=prompt_template,input_variables=["context","question"]
-)
+    prompt = PromptTemplate(template = prompt_template, input_variables = ["context", "question"])
+    chain = load_qa_chain(model, chain_type="stuff", prompt=prompt)
+
+    return chain
 
 
-def get_titan_llm():
-    llm=Bedrock(model_id="amazon.titan-text-express-v1",client=bedrock)
+
+
+def user_input(user_question):
+    embeddings = GoogleGenerativeAIEmbeddings(model = "models/embedding-001")
     
-    return llm
+    new_db = FAISS.load_local("faiss_index", embeddings)
+    docs = new_db.similarity_search(user_question)
 
-def get_response_llm(llm,vectorstore_faiss,query):
-    qa=RetrievalQA.from_chain_type(
-        llm=llm,
-        chain_type="stuff",
-        retriever=vectorstore_faiss.as_retriever(
-            search_type="similarity",
-            search_kwargs={"k":3}
-        ),
-        return_source_documents=True,
-        chain_type_kwargs={"prompt":PROMPT}
-        
-        
-    )
-    answer=qa({"query":query})
-    return answer["result"]
+    chain = get_conversational_chain()
+
+    
+    response = chain(
+        {"input_documents":docs, "question": user_question}
+        , return_only_outputs=True)
+
+    print(response)
+    st.write("Reply: ", response["output_text"])
     
 if __name__=='__main__':
     #docs=data_ingestion()
     #vectorstore_faiss=get_vector_store(docs)
-    faiss_index=FAISS.load_local("faiss_index",bedrock_embeddings,allow_dangerous_deserialization=True)
+    faiss_index=FAISS.load_local("faiss_index",embeddings,allow_dangerous_deserialization=True)
     query="What is RAG token?"
-    llm=get_titan_llm()
-    print(get_response_llm(llm,faiss_index,query))
+    user_input(query)

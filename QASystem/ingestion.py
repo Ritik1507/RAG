@@ -1,34 +1,35 @@
 ﻿import json
 import os
 import sys
-import boto3
-from langchain_community.document_loaders import PyPDFDirectoryLoader
+from pypdf import PdfReader
 from langchain.text_splitter import RecursiveCharacterTextSplitter
-from langchain_community.embeddings import BedrockEmbeddings
-from langchain_community.llms import Bedrock
-from langchain_community.vectorstores import FAISS
+from langchain_google_genai import GoogleGenerativeAIEmbeddings
+from langchain.vectorstores import FAISS
 
 
-### bedrock client
+embeddings = GoogleGenerativeAIEmbeddings(model="model/embedding-001")
 
-bedrock=boto3.client(service_name="bedrock-runtime")
-bedrock_embeddings=BedrockEmbeddings(model_id="amazon.titan-embed-text-v1",client=bedrock)
+def get_pdf_text(pdf_docs):
+    text=""
+    for pdf in pdf_docs:
+        pdf_reader=pdf_reader(pdf)
+        for page in pdf_reader.pages:
+            text+=page.extract_text()
+    return text     
 
-def data_ingestion():
-    loader = PyPDFDirectoryLoader("./data")
-    documents = loader.load()
-    
-    text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=1000)
-    text_splitter.split_documents(documents)
-    
-    docs=text_splitter.split_documents(documents)
-    
-    return docs
 
-def get_vector_store(docs):
-    vector_store_faiss=FAISS.from_documents(docs,bedrock_embeddings)
+def get_text_chunks(text):
+    text_splitter= RecursiveCharacterTextSplitter(chunk_size=10000, chunk_overlap=1000)
+    chunks=text_splitter.split_text(text)  
+    return chunks 
+
+
+
+def get_vector_store(text_chunks):
+    vector_store_faiss=FAISS.from_texts(text_chunks,embedding=embeddings)
     vector_store_faiss.save_local("faiss_index")
 
 if __name__ == '__main__':
-    docs=data_ingestion()
-    get_vector_store(docs)
+    text = get_pdf_text()
+    chunks=get_text_chunks(text)
+    get_vector_store(chunks)
