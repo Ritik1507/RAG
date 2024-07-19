@@ -14,9 +14,7 @@ from ingestion import get_pdf_text,get_text_chunks,get_vector_store
 from retrievalandgeneration import user_input
 
 
-load_dotenv()
-os.getenv("GOOGLE_API_KEY")
-genai.configure(api_key=os.getenv("GOOGLE_API_KEY"))
+
 
 def main():
     st.set_page_config("Chat PDF")
