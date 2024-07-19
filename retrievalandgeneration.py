@@ -6,7 +6,7 @@ from langchain_google_genai import GoogleGenerativeAIEmbeddings,ChatGoogleGenera
 from langchain.chains.question_answering import load_qa_chain
 import streamlit as st
 from dotenv import load_dotenv
-from QASystem.ingestion import get_vector_store
+from ingestion import get_vector_store
 import google.generativeai as genai
 
 
@@ -43,7 +43,7 @@ def get_conversational_chain():
 def user_input(user_question):
     embeddings = GoogleGenerativeAIEmbeddings(model = "models/embedding-001")
     
-    new_db = FAISS.load_local("faiss_index", embeddings)
+    new_db = FAISS.load_local("faiss_index", embedding=embeddings)
     docs = new_db.similarity_search(user_question)
 
     chain = get_conversational_chain()
@@ -56,7 +56,3 @@ def user_input(user_question):
     print(response)
     st.write("Reply: ", response["output_text"])
     
-if __name__=='__main__':
-    faiss_index=FAISS.load_local("faiss_index",embeddings,allow_dangerous_deserialization=True)
-    query="What is RAG token?"
-    user_input(query)

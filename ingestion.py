@@ -34,7 +34,3 @@ def get_vector_store(text_chunks):
     vector_store_faiss=FAISS.from_texts(text_chunks,embedding=embeddings)
     vector_store_faiss.save_local("faiss_index")
 
-if __name__ == '__main__':
-    text = get_pdf_text()
-    chunks=get_text_chunks(text)
-    get_vector_store(chunks)

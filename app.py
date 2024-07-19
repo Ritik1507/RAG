@@ -10,8 +10,8 @@ from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain.chains.question_answering import load_qa_chain
 from langchain.prompts import PromptTemplate
 from dotenv import load_dotenv,find_dotenv
-from QASystem.ingestion import get_pdf_text,get_text_chunks,get_vector_store
-from QASystem.retrievalandgeneration import user_input
+from ingestion import get_pdf_text,get_text_chunks,get_vector_store
+from retrievalandgeneration import user_input
 
 
 load_dotenv()

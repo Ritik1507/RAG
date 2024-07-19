@@ -1,12 +1,10 @@
-langchain
-langchainhub
-google-generativeai
-langchain-google-genai
-tiktoken
-langchain_community
 streamlit
-pypdf
-faiss-cpu
+google-generativeai
 python-dotenv
+langchain
+PyPDF2
+chromadb
+faiss-cpu
+langchain-google-genai
 
 -e .
