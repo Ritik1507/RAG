@@ -5,9 +5,13 @@ from pypdf import PdfReader
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_google_genai import GoogleGenerativeAIEmbeddings
 from langchain.vectorstores import FAISS
+from dotenv import load_dotenv
+import google.generativeai as genai
 
+load_dotenv()
+os.getenv("GOOGLE_API_KEY")
+genai.configure(api_key=os.getenv("GOOGLE_API_KEY"))
 
-embeddings = GoogleGenerativeAIEmbeddings(model="model/embedding-001")
 
 def get_pdf_text(pdf_docs):
     text=""
@@ -26,6 +30,7 @@ def get_text_chunks(text):
 
 
 def get_vector_store(text_chunks):
+    embeddings = GoogleGenerativeAIEmbeddings(model="model/embedding-001")
     vector_store_faiss=FAISS.from_texts(text_chunks,embedding=embeddings)
     vector_store_faiss.save_local("faiss_index")
 

@@ -1,7 +1,7 @@
 langchain
 langchainhub
 google-generativeai
-langchain_google_genai
+langchain-google-genai
 tiktoken
 langchain_community
 streamlit

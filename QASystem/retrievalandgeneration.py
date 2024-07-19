@@ -1,14 +1,22 @@
-﻿from langchain.chains import RetrievalQA
+﻿import os
+from langchain.chains import RetrievalQA
 from langchain_community.vectorstores import FAISS
 from langchain.prompts import PromptTemplate
 from langchain_google_genai import GoogleGenerativeAIEmbeddings,ChatGoogleGenerativeAI
 from langchain.chains.question_answering import load_qa_chain
 import streamlit as st
-
+from dotenv import load_dotenv
 from QASystem.ingestion import get_vector_store
+import google.generativeai as genai
 
-embeddings = GoogleGenerativeAIEmbeddings(model="model/embedding-001")
 
+
+load_dotenv()
+os.getenv("GOOGLE_API_KEY")
+genai.configure(api_key=os.getenv("GOOGLE_API_KEY"))
+
+
+embeddings = GoogleGenerativeAIEmbeddings(model = "models/embedding-001")
 
 def get_conversational_chain():
 
@@ -49,8 +57,6 @@ def user_input(user_question):
     st.write("Reply: ", response["output_text"])
     
 if __name__=='__main__':
-    #docs=data_ingestion()
-    #vectorstore_faiss=get_vector_store(docs)
     faiss_index=FAISS.load_local("faiss_index",embeddings,allow_dangerous_deserialization=True)
     query="What is RAG token?"
     user_input(query)
